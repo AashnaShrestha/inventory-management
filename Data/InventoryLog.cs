@@ -13,8 +13,9 @@ namespace Coursework.Data
         [Required(ErrorMessage = "Please choose an item.")]
         public InventoryItem Item { get; set; }
         public int Quantity { get; set; }
-        public string ApprovedBy { get; set; } = "Ram";
-        public DateTime DateTakenOut { get; set; } = DateTime.Today;
+        public string ApprovedBy { get; set; }
+        public string TakenBy { get; set; }
+        public DateTime DateTakenOut { get; set; } = DateTime.Now;
         public DateTime CreatedAt { get; set; } = DateTime.Now;
     }
 }

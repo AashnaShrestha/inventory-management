@@ -1,0 +1,20 @@
+﻿@using Coursework.Data
+<MudDialog>
+    <DialogContent>
+        Are you sure you want to delete this log?
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="DeleteLog">Yes</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Cancel">No</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    void Cancel() { MudDialog.Cancel(); }
+
+    void DeleteLog()
+    {
+        MudDialog.Close(DialogResult.Ok(true));
+    }
+}

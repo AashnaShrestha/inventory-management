@@ -14,6 +14,9 @@
             <MudItem xs="12">
                 <MudNumericField @bind-Value="newLog.Quantity" Label="Quantity" Min="0" />
             </MudItem>
+            <MudItem>
+                <MudTextField Label="Taken by" @bind-Value="newLog.TakenBy"></MudTextField>
+            </MudItem>
         </MudGrid>
     </DialogContent>
     <DialogActions>
@@ -25,7 +28,10 @@
     [CascadingParameter] MudDialogInstance MudDialog { get; set; }
     InventoryLog newLog = new InventoryLog();
     List<InventoryItem> inventoryItem = new List<InventoryItem>();
+    [Parameter] public string username { get; set; }
+
     void Cancel() { MudDialog.Cancel(); }
+
 
     protected override void OnInitialized()
     {
@@ -34,10 +40,11 @@
 
     void AddLog()
     {
+       
         if(newLog.Item.AvailableQuantity >= newLog.Quantity)
         {
+            newLog.ApprovedBy = username;
             var log = InventoryLogService.Create(newLog);
-            _ = JSRuntime.InvokeVoidAsync("console.log", log);
             MudDialog.Close(DialogResult.Ok(true));
         }
         else{

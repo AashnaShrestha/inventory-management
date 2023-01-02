@@ -1,0 +1,58 @@
+﻿@using Coursework.Data
+@inject IJSRuntime JSRuntime
+<MudDialog>
+    <DialogContent>
+        <MudGrid>
+            <MudItem xs="12">
+                <MudSelect T="InventoryItem" Label="Item" @bind-Value="newLog.Item">
+                    @foreach (var item in inventoryItem)
+                    {
+                        <MudSelectItem T="InventoryItem" Value="@item">@item.ItemName</MudSelectItem>
+                    }
+                </MudSelect>
+            </MudItem>
+            <MudItem xs="12">
+                <MudNumericField @bind-Value="newLog.Quantity" Label="Quantity" Min="0" />
+            </MudItem>
+        </MudGrid>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="AddLog">Add</MudButton>
+    </DialogActions>
+</MudDialog>
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    InventoryLog newLog = new InventoryLog();
+    List<InventoryItem> inventoryItem = new List<InventoryItem>();
+    private InventoryItem item { get; set; }
+
+    void Cancel() { MudDialog.Cancel(); }
+
+    protected override void OnInitialized()
+    {
+        inventoryItem = InventoryService.GetAllInventoryItems();
+    }
+
+    void AddLog()
+    {
+        if (newLog.Item.AvailableQuantity >= newLog.Quantity)
+        {
+            var log = InventoryLogService.Create(newLog);
+            _ = JSRuntime.InvokeVoidAsync("console.log", log);
+            MudDialog.Close(DialogResult.Ok(true));
+        }
+        else
+        {
+            _ = JSRuntime.InvokeVoidAsync("console.log", "Stock not available");
+        }
+
+    }
+
+    //MudDialog.Close(DialogResult.Ok(true));
+    //Console.WriteLine("Hello");
+    //Console.WriteLine(inventory);
+
+
+
+}

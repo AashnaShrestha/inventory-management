@@ -1,0 +1,39 @@
+﻿@using Coursework.Data
+@page "/dashboard"
+
+<MudContainer>
+    <MudChart ChartType="ChartType.Bar" ChartSeries="@Series" XAxisLabels="@XAxisLabels" Width="100%" Height="350px" ChartOptions="@chartOptions">
+	@*<CustomGraphics>
+		<style>
+			.heavy { font: bold 30px Helvetica; }
+			.Rrrrr { font: italic 40px Helvetica; fill: rgb(62,44,221); }
+		</style>
+	</CustomGraphics>
+*@
+</MudChart>
+</MudContainer>
+
+@code {
+	public List<ChartSeries> Series;
+	public string[] XAxisLabels;
+	public Dictionary<string, double> labels = new Dictionary<string, double>();
+	private List<InventoryLog> logs = InventoryLogService.GetAllInventoryLogs();
+	private ChartOptions chartOptions = new ChartOptions();
+
+	protected override void OnInitialized()
+	{
+		foreach (InventoryLog log in logs)
+		{
+			labels.TryGetValue(log.Item.ItemName, out var currentCount);
+			labels[log.Item.ItemName] = currentCount + log.Quantity;
+		}
+		XAxisLabels = labels.Keys.ToArray();
+		Series = new List<ChartSeries>()
+	{
+		new ChartSeries() { Name = "Items Taken Out", Data = labels.Values.ToArray() },
+	};
+		chartOptions.YAxisTicks = 2;
+		chartOptions.XAxisLines = true;
+	}
+	
+}

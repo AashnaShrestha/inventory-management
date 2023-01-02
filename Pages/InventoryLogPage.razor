@@ -5,23 +5,31 @@
 
 <MudContainer>
     <MudGrid>
-        <MudItem xs="12">
+        <MudItem xs="3">
             <h3>Inventory Logs</h3>
         </MudItem>
-        <MudItem xs="4">
-            <MudButton Variant="Variant.Filled" StartIcon="@Icons.Filled.Inventory" Color="Color.Info" Size="Size.Small" @onclick="AddLogDialog">Add Item</MudButton>
+        <MudSpacer />
+        <MudItem xs="3">
+            <MudButton Variant="Variant.Filled" StartIcon="@Icons.Filled.Inventory" Color="Color.Info" Size="Size.Small" @onclick="AddLogDialog" Disabled="@isDisabled">Add Log</MudButton>
         </MudItem>
+        @if (isDisabled){
+            <MudItem xs="12">
+                <h6 style="color: red">*Logs cannot be added currently</h6>
+            </MudItem>
+        }
         <MudItem xs="12">
             <MudTable Items="@inventoryLogs" Dense="@dense" Hover="@hover" Bordered="@bordered" Striped="@striped" Filter="new Func<InventoryLog,bool>(FilterFunc)">
                 <ToolBarContent>
                     <MudTextField T="string" @bind-Value="searchString" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0" Clearable="true"></MudTextField>
                      <MudSpacer />
-                    <MudButton Variant="Variant.Filled" StartIcon="@Icons.Filled.Inventory" Color="Color.Info" Size="Size.Small" @onclick="AddLogDialog">Add Log</MudButton>
+                     <MudDatePicker Label="Year-Month Picker (Fixed Day)" HelperText="@_yearMonth?.ToShortDateString()" @bind-Date="_yearMonth" OpenTo="OpenTo.Year" FixDay="1" DateFormat="yyyy/MM" Clearable="true"/>
+                    
                 </ToolBarContent>
                 <HeaderContent>
                     <MudTh>ID</MudTh>
                     <MudTh>Item</MudTh>
                     <MudTh>Quantity</MudTh>
+                    <MudTh>Taken By</MudTh>
                     <MudTh>Approved By</MudTh>
                     <MudTh>Date Taken Out</MudTh>
                     @*<MudTh>Actions</MudTh>*@
@@ -30,18 +38,9 @@
                     <MudTd DataLabel="ID">@context.Id</MudTd>
                     <MudTd DataLabel="Item">@context.Item.ItemName</MudTd>
                     <MudTd DataLabel="Quantity">@context.Quantity</MudTd>
+                    <MudTd DataLabel="Taken By">@context.TakenBy</MudTd>
                     <MudTd DataLabel="Approved By">@context.ApprovedBy</MudTd>
                     <MudTd DataLabel="Date Taken Out">@context.DateTakenOut</MudTd>
-                    @*<MudTd DataLabel="Actions">
-                        <MudGrid>
-                            <MudItem xs="6">
-                                <MudIconButton Icon="@Icons.Filled.Edit" OnClick="@(() => UpdateItem(context))"></MudIconButton>
-                            </MudItem>
-                            <MudItem xs="6">
-                                <MudIconButton Icon="@Icons.Filled.Delete" OnClick="@(() => DeleteItem(context))"></MudIconButton>
-                            </MudItem>
-                        </MudGrid>
-                    </MudTd>*@
                 </RowTemplate>
                 <PagerContent>
                     <MudTablePager />
@@ -58,14 +57,22 @@
     private bool striped = false;
     private bool bordered = false;
     private string searchString;
+    [CascadingParameter] GlobalState? _globalState { get; set; }
+    DateTime? _yearMonth;
+    private bool isDisabled = false;
+
     protected override void OnInitialized()
     {
+        var currentTime = DateTime.Now;
+        var currentDay = (int)DateTime.Today.DayOfWeek;
+        isDisabled = !(currentTime.Hour >= 9 && currentTime.Hour <= 17 && currentDay <= 5);
         inventoryLogs = InventoryLogService.GetAllInventoryLogs();
     }
 
     async Task AddLogDialog()
     {
-        var dialog = await DialogService.ShowAsync<AddLogDialog>("Add Log");
+        var parameters = new DialogParameters { ["username"] =  _globalState.CurrentUser.Username};
+        var dialog = await DialogService.ShowAsync<AddLogDialog>("Add Log", parameters);
         var res = await dialog.Result;
 
         if (!res.Cancelled)
@@ -77,10 +84,13 @@
 
     private bool FilterFunc(InventoryLog log)
     {
-        if (string.IsNullOrWhiteSpace(searchString))
-            return true;
-        if (log.Item.ItemName.Contains(searchString, StringComparison.OrdinalIgnoreCase))
-            return true;
+        if (_yearMonth == null || (_yearMonth.Value.Year == log.DateTakenOut.Year && _yearMonth.Value.Month == log.DateTakenOut.Month))
+        {
+            if (string.IsNullOrWhiteSpace(searchString))
+                return true;
+            if (log.Item.ItemName.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+                return true;
+        }
         return false;
     }
 }
