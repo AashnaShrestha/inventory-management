@@ -1,0 +1,82 @@
+﻿@page "/"
+@using Coursework.Data
+@using System.ComponentModel.DataAnnotations
+@inject NavigationManager NavManager
+
+@*<div>
+    <h3>Login</h3>
+</div>*@
+<MudContainer Class="d-flex align-center justify-center">
+    <EditForm Model="@loginForm" OnValidSubmit="HandleLogin">
+        <DataAnnotationsValidator />
+        <MudGrid Class="py-8 d-flex flex-1">
+            <MudItem xs="3"></MudItem>
+            <MudItem xs="12" sm="6">
+                <MudCard>
+                    <MudCardHeader>
+                        <CardHeaderContent>
+                            <h3>Login</h3>
+                        </CardHeaderContent>
+                    </MudCardHeader>
+                    <MudCardContent>
+                        <MudTextField Label="Username" Clearable = "true" @bind-Value="loginForm.Username" For="@(() => loginForm.Username)" />
+                        <MudTextField Label="Password" Clearable="true"
+                                      @bind-Value="loginForm.Password" For="@(() => loginForm.Password)" />
+                    </MudCardContent>
+                    <MudCardActions>
+                        <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">Login</MudButton>
+                    </MudCardActions>
+                </MudCard>
+            </MudItem>
+            <MudItem xs="3"></MudItem>
+        </MudGrid>
+    </EditForm>
+</MudContainer>
+
+@code {
+    [CascadingParameter]
+    public GlobalState _globalState { get; set; }
+    //MudForm form;
+    LoginForm loginForm = new LoginForm();
+
+    protected override void OnInitialized()
+    {
+        try
+        {
+            Console.WriteLine("Hello World");
+            var user = UserService.Login(UserService.SeedUsername, UserService.SeedPassword);
+            //_showDefaultCredentials = user.HasInitialPassword;
+        }
+        catch { }
+
+        _globalState.CurrentUser = null;
+        //_errorMessage = "";
+    }
+
+    public class LoginForm
+    {
+        [Required]
+        public string Username { get; set; }
+
+        [Required]
+        public string Password { get; set; }
+    }
+
+    private void HandleLogin()
+    {
+        try
+        {
+            //_errorMessage = "";
+            _globalState.CurrentUser = UserService.Login(loginForm.Username, loginForm.Password);
+            if (_globalState.CurrentUser != null)
+            {
+                NavManager.NavigateTo("/inventoryItem");
+            }
+        }
+        catch (Exception e)
+        {
+            //_errorMessage = e.Message;
+            Console.WriteLine(e);
+        }
+    }
+}

@@ -1,0 +1,39 @@
+﻿@using Coursework.Data
+<MudDialog>
+    <DialogContent>
+        <MudGrid>
+            <MudItem xs="12">
+                <MudTextField @bind-Value="itemName" Label="Item"></MudTextField>
+            </MudItem>
+            <MudItem xs="12">
+                <MudNumericField @bind-Value="availableQuantity" Label="Available Quantity" Min="0" />
+            </MudItem>
+        </MudGrid>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="UpdateItem">Update</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Cancel">Cancel</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    void Cancel() { MudDialog.Cancel(); }
+    [Parameter] public InventoryItem updateItem { get; set; }
+    private string itemName { get; set; }
+    private int availableQuantity { get; set; }
+
+    protected override void OnInitialized()
+    {
+        itemName = updateItem.ItemName;
+        availableQuantity = updateItem.AvailableQuantity;
+    }
+
+    void UpdateItem()
+    {
+        updateItem.ItemName = itemName;
+        updateItem.AvailableQuantity = availableQuantity;
+        InventoryService.Update(updateItem);
+        MudDialog.Close(DialogResult.Ok(true));
+    }
+}

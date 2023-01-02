@@ -1,0 +1,49 @@
+﻿@page "/dashboard"
+@inject NavigationManager NavManager
+
+<style>
+    container {
+        background-color: #f5f5f7;
+    }
+</style>
+
+<MudContainer Class="d-flex align-center justify-center my-auto">
+    <MudGrid Class="py-8 d-flex flex-1">
+        <MudItem xs="3"></MudItem>
+        <MudItem xs="6">
+            <MudCard>
+                <MudCardHeader>
+                    <CardHeaderContent>
+                        <MudText Typo="Typo.h6">Create Record</MudText>
+                    </CardHeaderContent>
+                </MudCardHeader>
+                <MudDivider />
+                <MudCardContent>
+                    <MudStack Spacing="@spacing" Justify="Justify.Center">
+
+                        <MudTextField @bind-Value="item" Label="Item" Variant="Variant.Text" Clearable="true" Immediate="true" />
+                        <MudTextField @bind-Value="quantity" Label="Quantity" Variant="Variant.Text" Clearable="true" Immediate="true" />
+                        <MudTextField @bind-Value="takenBy" Label="Taken By" Variant="Variant.Text" Clearable="true" Immediate="true" />
+                        <MudTextField @bind-Value="date" Label="Date" Variant="Variant.Text" Clearable="true" Immediate="true" />
+
+                    </MudStack>
+                </MudCardContent>
+                <MudCardActions>
+                    <MudButton Variant="Variant.Text" Color="Color.Primary">Save</MudButton>
+                    <MudButton Variant="Variant.Text" Color="Color.Primary">Cancel</MudButton>
+                </MudCardActions>
+            </MudCard>
+        </MudItem>
+        <MudItem xs="3"></MudItem>
+    </MudGrid>
+</MudContainer>
+
+
+
+@code {
+    public int spacing { get; set; } = 2;
+    string item;
+    int quantity;
+    string takenBy;
+    DateTime date;
+}

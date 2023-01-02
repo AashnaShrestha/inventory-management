@@ -1,0 +1,36 @@
+﻿@using Coursework.Data
+@inject IJSRuntime JSRuntime
+<MudDialog>
+    <DialogContent>
+        <MudGrid>
+            <MudItem xs="12">
+                <MudTextField @bind-Value="newItem.ItemName" Label="Item" ></MudTextField>
+            </MudItem>
+            <MudItem xs="12">
+                <MudNumericField @bind-Value="newItem.AvailableQuantity" Label="Available Quantity" Min="0" />
+            </MudItem>
+        </MudGrid>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="AddItem">Add</MudButton>
+    </DialogActions>
+</MudDialog>
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    InventoryItem newItem = new InventoryItem();
+    void Cancel() { MudDialog.Cancel(); }
+
+    void AddItem(){
+        var inventory = InventoryService.Create(newItem);
+        _ = JSRuntime.InvokeVoidAsync("console.log", inventory);
+        MudDialog.Close(DialogResult.Ok(true));
+    }
+        
+        //MudDialog.Close(DialogResult.Ok(true));
+        //Console.WriteLine("Hello");
+        //Console.WriteLine(inventory);
+
+
+    
+}
